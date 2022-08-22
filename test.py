@@ -767,7 +767,32 @@ print(sorted(listBad, key = lambda item: item[1])) #use lambda in order to write
 combined_list = list(zip(inventory_names, inventory_numbers))
 sorted_comp_num = sorted(combined_list, key = lambda inv_tuple: inv_tuple[1])
 
-sorted_comp_name = sorted(combined_list, key = lambda inv_tuple: len(inv_tuple[0])
+sorted_comp_name = sorted(combined_list, key = lambda inv_tuple: len(inv_tuple[0]))
 
 #ok i kinda think i know how this works?
-	
+#map
+my_map = [1,2,3,4,5]	
+#map changes values with a function inside of a iterable
+
+#map(key, iterable)
+#passed into th fucntion as a value
+def power_function(num):
+	return num ** 2
+
+map(power_function, my_map)
+
+print(list(map(lambda num: num **2, my_map)))
+#filter - filters out values from a condition
+def get_below_4(num):
+	if num <4:
+		return True
+	else:
+		#if returns false then they get filtered out
+		False
+print(list(filter(get_below_4, my_map)))
+
+print(list(filter(lambda num: num <4, my_map)))
+
+#list comprehension is for trying to make the function without using it.
+print([num **2 for num in my_map])
+print([num for num in my_map if num <4])
