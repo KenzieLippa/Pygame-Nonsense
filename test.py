@@ -796,3 +796,52 @@ print(list(filter(lambda num: num <4, my_map)))
 #list comprehension is for trying to make the function without using it.
 print([num **2 for num in my_map])
 print([num for num in my_map if num <4])
+
+file = open('Test.txt')
+print(list(file))
+#want to close the file as well
+file.close() #removes out of memory to make more efficient
+
+#open and close auto
+with open('Test.txt') as file:
+	#opens the file and then use it here, once over then close automatically
+	print(file.read())#converts to something we can use more easily
+	#is a string, if u list u get the characters
+	for line in list(file):
+		print(line)
+		#print all lines from file
+
+	#write file, 'r' is the auto then 'a' is for append and 'w' is for right
+with open('Test.txt', 'a') as file:
+	file.write('\nxxxxxxWrite some more text xxxxxxx')
+
+
+with open('tree.txt', 'w') as tree_file:
+	tree_string = '''
+	  x
+	 xxx
+	xxxxx
+	  x
+	  x
+	  x
+	  x
+	'''
+
+	tree_file.write(tree_string)
+#only need to delete values from a list most of the time
+weirdVal = 1
+del weirdVal
+#deleted the variable
+
+#remove items from a list
+weirdList = [1,2,3]
+del weirdList[1]
+print(weirdList)
+
+#remove the item by value
+weirdList.remove(3) #remove the value uve written in here.
+
+#can also use the pop
+weirdList.pop() #pops out th value deleted and is saved, default index is -1
+
+weirdList.clear()#clears the list.
