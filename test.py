@@ -845,3 +845,13 @@ weirdList.remove(3) #remove the value uve written in here.
 weirdList.pop() #pops out th value deleted and is saved, default index is -1
 
 weirdList.clear()#clears the list.
+
+#classes
+#objects: container for variables and functions
+#make a video game with monsters and have health energy damage, needs to move animate and fight
+#variables are only available in the container
+#variables in an object are an attribute, functions are methods
+#can have multiple objects
+#each object has its own attributes and methods, objects can also interact with each other
+#organize via different objects for object-oriented programming
+
