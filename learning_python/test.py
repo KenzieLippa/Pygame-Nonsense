@@ -855,3 +855,9 @@ weirdList.clear()#clears the list.
 #each object has its own attributes and methods, objects can also interact with each other
 #organize via different objects for object-oriented programming
 
+
+#what are classes? a blue print for an object
+#can accept arguments to customize the object
+
+#one class can inheret from other classes as well
+
