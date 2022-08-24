@@ -861,3 +861,151 @@ weirdList.clear()#clears the list.
 
 #one class can inheret from other classes as well
 
+#organize complex code and create reusable code, help create reusable code
+#make easier to work with scope
+class Monster:
+	#attributes, but i want custom values
+	#dont need these until the init method
+	# health = 100
+	# energy = 40
+	def __init__(self, health, energy):
+		#the heath parameter and the input
+		#two member variables
+		self.health = health
+		self.energy = energy
+		print('the monster was created')
+
+	def __len__(self):
+		#return something
+		return 5
+	def __abs__(self):
+		return self.energy #can do what ever you want with this
+	def __call__(self):
+		return 'the monster was called' #if you add brackets afte rmonster this will get called
+		#can also just print tht
+		print('the monster was summoned')
+
+	def __add__(self, other):
+		return self.health + other
+
+	def __str__(self):
+		#dunder string, returns some text (i remeber working with this)
+		return 'A monster'
+		#call with str or just with print
+	def attack(monster, attack):
+		#first parameter always refrences the object created by the class
+		print('The monster has attacked!')
+		print(f'{attack} damage was dealt!')
+		monster.energy -= 20 #because the object is th first parameter it is able to modify variables in the class
+		print(monster.energy)
+#first is usually self
+	def move(self, speed):
+		print(f'The monster moved at {speed} MPH!')
+#turn class into object
+monster = Monster(10,20) #capture object in a variable
+monster2 = Monster(health = 20, energy = 100)
+
+print(monster.health) # health is only in the class and accessed with object.variable 
+#monster.attack() doesnt work, says that theres a issue
+#passes in the object default into the functions in the func in th class
+
+monster.attack(10)
+monster.move(20)
+print(len(monster)) #links to th len method
+print(monster + 55) #can add to the monster in the parenthesis
+#dunder methods
+#dir prints result of the object
+#many dunder methods are made automatically and u dont have to say them
+#__dict__ returns the values as a dictionary, can also use vars
+#called by python when something else is happening
+#func is len(test) method is test.upper() only on string
+
+testvar = 'a'
+print(dir(testvar))
+
+def testFun():
+	pass
+#func is an object with th dunder call
+ass = testFun
+
+ass.another_attribute = 100
+
+def add(a,b):
+	return a+b
+
+class Test:
+	def __init__(self, add):
+		self.add_function = add
+#passed in the function add for this parameter that we created earlier
+test8 = Test(add = add)
+#mind fuck nonsense
+print(test8.add_function(1,2))
+class Monster2:
+	def __init__(self, func):
+		self.func = func
+
+
+class Attacks:
+	#good way to organize functions
+	def bite(self):
+		print('IVE BIT YOU')
+	def strike(self):
+		print('Ive struck you!')
+	def slash(self):
+		print('I got a knife and imana cut you')
+	def kick(self):
+		print('ive kicked you')
+
+attack = Attacks()
+monster3 = Monster2(attack.bite) #can also call Attacks().bite
+monster3.func()
+
+#classes and scope
+#every method has a refrence to the class, because of this its easy to get and change class attributes
+#rely less on parameters, global and return
+#objects can change outside the local scope
+
+class Monster3:
+	def __init__(self, health, energy):
+		self.health = health
+		self.set_energy #can use with the return parameter
+	def update_energy(self, amount):
+		#select attribute and update it to what ever you want
+		self.energy += amount
+
+	def set_energy(self, energy):
+		new_energu = energy *2
+		self.energy = new_energu
+		return new_energu
+	def getDamage(self, amount):
+		self.health -= amount
+
+def update_health(amount):
+	monsterN.health += amount #can update an object anywhere
+
+
+monsterN = Monster3(100,59) 
+
+#create hero class with 2 parameters
+
+class Hero:
+	def __init__(self, damage, monster):
+		self.damage = damage
+		self.monster = monster
+
+	def attack(self):
+		self.monster.getDamage(self.damage)
+
+
+# class MeanMonster:
+# 	def __init__(self, health):
+# 		self.health = health
+	
+
+squid = Monster3(100, 50)
+fred = Hero(10, squid)
+print(squid.health)
+fred.attack()
+print(squid.health)
+
+#inheritance
