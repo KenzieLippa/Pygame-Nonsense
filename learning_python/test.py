@@ -868,12 +868,16 @@ class Monster:
 	#dont need these until the init method
 	# health = 100
 	# energy = 40
+	'''monster that has some attributes '''
 	def __init__(self, health, energy):
 		#the heath parameter and the input
 		#two member variables
 		self.health = health
 		self.energy = energy
 		print('the monster was created')
+
+		#private attributes
+		self._id = 5 #should not be worked on but can be worked on
 
 	def __len__(self):
 		#return something
@@ -966,9 +970,17 @@ monster3.func()
 #objects can change outside the local scope
 
 class Monster3:
-	def __init__(self, health, energy):
+
+	def __init__(self, health, energy, **kwargs):
+		print(kwargs)
+		#keyword unpacking, save any extra parameters you get into a kwargs dictionary
 		self.health = health
 		self.set_energy #can use with the return parameter
+		#call the super init method here
+		#follows the inheretance set by the shark, th init method wont do anything if called alone from just monster
+		super().__init__(**kwargs) #puts in the extra variables in as a named argument
+		#this method will work for what ever uve passed it and what ever the next class is so if its fish then you pass fish init values and if monster
+		#dettects them then they will go in the kwargs and be read into the fish method
 	def update_energy(self, amount):
 		#select attribute and update it to what ever you want
 		self.energy += amount
@@ -984,7 +996,7 @@ def update_health(amount):
 	monsterN.health += amount #can update an object anywhere
 
 
-monsterN = Monster3(100,59) 
+#onsterN = Monster3(100,59) 
 
 #create hero class with 2 parameters
 
@@ -1009,3 +1021,130 @@ fred.attack()
 print(squid.health)
 
 #inheritance
+#can get complex, can inheret from other classes
+#gets info from parent class
+#to inherit then you put the parent in parenthesis
+class Shark(Monster3):
+	def __init__(self, speed, health, energy):
+		self.speed = speed #new attribute
+		#need to call the init method from th 
+		#self wld be monster but is now refering to the shark
+		#Monster3.__init__(self, health, energy)
+		#gets parent class
+		super().__init__(health,energy)
+
+	def bite(self):
+		print('the shark has bitten!')
+
+	#override a method, define a same method 
+	def move(self):
+		print('The shark has moved')
+		print(f'The speed of the shark is {self.speed}')
+
+class Scorpion(Monster3):
+	def __init__(self, poison, health = 100, energy = 90):
+		self.poisonDamage = poison
+		#only gets these attributes if u add this info, can also set static numbers in here
+		super().__init__(health, energy)
+
+	def attack(self):
+		print('The Scorpion has attacked!')
+		print(f'it has dealt {self.poisonDamage} poison damage!')
+
+shark = Shark(speed = 129, health = 100, energy = 80)
+print(shark.health)
+shark.move()
+scorpion = Scorpion(10)
+scorpion.attack()
+class Fish:
+	def __init__(self, speed, scales, **kwargs):
+		self.speed = speed
+		self.scales = scales
+		super().__init__(**kwargs)
+
+	def swim(self):
+		print(f'the fish is swimming at the speed of {self.speed}')
+
+
+class Shark2(Monster3, Fish):
+	def __init__(self, bite_strength, health, energy, speed, scales):
+		self.bite_strength = bite_strength
+		#how to do the super cause theres two instead of one
+		#mro->method resolution order
+		#left most is the first, shark is 0, then 1,2
+		#super is the first item in 
+		#need the keyword equals part in here
+		super().__init__(health = health, energy = energy, speed = speed, scales = scales)
+		#fish inheretance is not working rn, no one called the fish init method, needs arguments inside the fish too
+print(Shark2.mro())
+
+#complex inheretance
+#before you have parent class and child, but you can also have multiple parents
+shark3 = Shark2(bite_strength = 50, health = 200, energy = 55, speed = 120, scales = False) #python knows th first item of inheretence
+
+#private attributes
+'''private can not be changed outside of the class, not mess with other code'''
+
+
+#hasattr and setattr
+#hasattr(object, 'attribute name')
+if hasattr(monster, 'health'):
+	#if monster has the attribute health then print this statement
+	print(f'the monster has {monster.health} health')
+#setattr(object, 'attribute', value)
+setattr(monster, 'weapon', 'Sword') #added and set the attribute
+monster.weapon = 'Sword'#also sets the attribute
+
+new_attributes = (['weapon', 'Axe'], ['armour', 'Shield'], ['potion', 'mana'])
+for attr, value in new_attributes:
+	setattr(monster, attr, value)
+	#set a lot of them with this all at once, probably wld wanna create all of these when u make the object tho
+
+
+#doc string
+#explains everything
+print(monster.__doc__)
+help(monster) #can see all the info about the method and all of the stuff it has, can use this for any object or keyword
+
+
+#modules
+'''kind of like libraries
+can create own module and also can use other peoples modules for extra functionality
+can import from the standard library, pre-installed with python
+can use additional modules made by others to help.'''
+import string 
+from math import floor as get_floor #renamed the function and imported only floor from the math function
+from random import * #all methods and functions for random without having to write random first
+from datetime import datetime as dt #have one object called datetime
+import pyautogui #automates windows to a certain extent
+from time import sleep
+
+random_num = randint(0,10) #random integer, can call it, needs min and max
+print(random_num)
+#google the module and it will show you everything that the module has
+test_list2 = [1,2,3,4,'Ray',[1,2,3]]
+choice(test_list2) #will pick a random value from the list
+#python standard library will also show you this stuff
+print(string.ascii_lowercase)
+#print(math.sin(1))
+print(get_floor(4.9))#round down
+#google a problem and find the solution
+print(dt.now())
+
+#external modules
+#made by other programmers
+#also need to be installed in python first
+#pip install and uninstall
+#sleep(1) #wait a second
+#pyautogui.write('This is written by a computer... I know where you live and I am coming to find you. You arent safe anymore...', interval = 0.25) #interval duration between
+#fun module where you can do a bunch of nonsense
+#pyplot and try to follow examples
+import sys
+import matplotlib.pyplot as plt
+print(sys.executable)
+
+plt.plot([1,2,3,4, 10, 0, 100])
+plt.ylabel('some numbers for the y axis')
+plt.xlabel('fancy unicorns')
+plt.show()
+#can also create custom modules
