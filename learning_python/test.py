@@ -1104,7 +1104,7 @@ for attr, value in new_attributes:
 #doc string
 #explains everything
 print(monster.__doc__)
-help(monster) #can see all the info about the method and all of the stuff it has, can use this for any object or keyword
+#help(monster) #can see all the info about the method and all of the stuff it has, can use this for any object or keyword
 
 
 #modules
@@ -1143,8 +1143,243 @@ import sys
 import matplotlib.pyplot as plt
 print(sys.executable)
 
-plt.plot([1,2,3,4, 10, 0, 100])
-plt.ylabel('some numbers for the y axis')
-plt.xlabel('fancy unicorns')
-plt.show()
+#commented out for speed reason
+# plt.plot([1,2,3,4, 10, 0, 100])
+# plt.ylabel('some numbers for the y axis')
+# plt.xlabel('fancy unicorns')
+# plt.show()
 #can also create custom modules
+import my_module
+print(my_module.test_var)
+my_module.test_func(123)
+test47 = my_module.my_class()
+print(my_module.sum_calc(1,2,3,4))
+
+#when python file is created then there is a dunder name
+
+print(__name__)
+if __name__ == '__main__':
+	print('the main file')
+
+print(my_module.__name__) #not sure why its not printing the others
+
+#decorators and error handeling
+#pass tells python to not do anything, can add this to a func if theres no code yet
+def incomplete():
+	pass
+
+#can raise own error
+#anticipating exceptions
+
+#error handeling
+try:
+	#any code after an error is not executed
+	print(a)
+	#print(1/0) # wont let you divide by 0
+	#print(1/1)
+except ZeroDivisionError:
+	print('what you tried to do is impossible') #if the try is impossible
+#can specify to 
+except NameError:
+	print('does not exist')
+else:
+	print('the else statement')#run if there are no errors and the try statement runs
+finally:
+	#runs either way, exception or not
+	print('finally.....')
+#raising exceptions
+var_must_be_string = 'test string'
+
+if(isinstance(var_must_be_string, str)):
+	#isinstance can check type
+	print(var_must_be_string)
+else:
+	raise TypeError('Must be a string') #raises an exception if it is wrong
+
+#only run if true, if false kills the code
+kill = 5
+assert kill == 5
+
+#list and raise an index error
+kill_list = [1,2,3,4,5]
+try:
+	kill_list[99]
+except IndexError:
+	print('That index does not exist')
+else:
+	print('that index exists')
+finally:
+	print('finished')
+
+#decorators
+'''put another function around the original and then inside you call the actual
+function, can run before and after and its ok
+can give extra functionality without changing the function
+1.test the code without changing it
+2. avoid making unnessary changes
+3.run code when an attribute is accessed or changed, want to run a function everytime health is changed
+causes to use more advanced functionalities that would otherwise be tough
+'''
+import time
+
+#print(idiot)#function object prints, can call it and itll do shit
+#pass it around like any other object
+def idiotPants(idiot):
+	print('hello')
+	idiot()#executes the idiot function
+	print('goodbye')
+
+def func_generator():
+	def newFunc():
+		print('new function')
+	return newFunc
+
+
+
+new_func = func_generator()
+#returns the new function and captures it in the new func, then can call it
+#basically calls funcs around 
+
+def decorator(idiot):
+	#creating a new function
+	def wrapper():
+		#addiing stuff around the old function
+		print('decoration begins')
+		#call the original function
+		idiot()
+		print('decoration ends')
+	return wrapper #if you dont return it then it wont work
+
+def duration_decorator(func):
+	def wrapper():
+		start_time = time.time()
+		func()
+		duration = time.time() - start_time
+		print(f'duration {duration}')
+	return wrapper
+
+def double_dec(func):
+	def wrapper():
+		func()
+		func()
+	return wrapper
+
+
+def repetition_decorator(repetitions):
+	def decorator(func):
+		def wrapper():
+			for r in range(repetitions):
+				func()
+		return wrapper
+	return decorator
+#can combine decorators
+#any decorators here basically tell the below function to run itself as an argument through them
+@double_dec
+#@repetition_decorator(5) 
+@decorator
+@duration_decorator #if u call this before a func tht u want to wrap then it will wrap in tht specific wrapper
+def idiot():
+	print('i am an idiot')
+	time.sleep(1)
+
+#f called 
+func = repetition_decorator(4)(idiot)
+'''repetition_decorator(4) is captured by decorator and then your basically back to 
+normal. wrapper is now stored in func after this and then bam'''
+idiotPants(idiot)
+idiot()
+def decorator1(idiot):
+	#creating a new function
+	def wrapper(*args, **kwargs):
+		#addiing stuff around the old function
+		print('decoration begins')
+		#call the original function
+		#can accept any number of arguments or lists or dictionaries or anything
+		idiot(*args, **kwargs)
+		print('decoration ends')
+	return wrapper #if you dont return it then it wont work
+
+# idiot= decorator(idiot)
+# idiot()
+#can overwrite the original function and add to it
+
+#funcs with parameters being decorated
+#decoraters can also have parameters
+@decorator1# same as func = decorator(func)
+def idiots(idiotParameter):
+	print(idiotParameter)
+
+idiot() #only one of th funcs contains an argument, when accounting for th func in the wrapper no argument is called
+
+from datetime import datetime
+#decorators in classes to turn methods into attributes
+class Generic:
+	def __init__(self):
+		#change the variable so its named after a private function
+		self._x = 100
+	def getter(self):
+		print('get x')
+		print(datetime.now())
+		return self._x
+
+	def setter(self, value):
+		print('set x')
+		self._x = value
+
+	def deleter(self):
+		print('delete x')
+		del self._x
+
+	#turns x into a property, refers to getter setter and deleter, runs these methods
+	x = property(getter, setter, deleter)
+
+
+class Generic2:
+	def __init__(self):
+		#change the variable so its named after a private function
+		self._x = 100
+
+	@property
+	def x(self):
+		print('get x')
+		print(datetime.now())
+		return self._x
+	@x.setter
+	def x(self, value):
+		print('set x')
+		self._x = value
+
+	@x.deleter
+	def x(self):
+		print('delete x')
+		del self._x
+
+generic = Generic()
+print(generic.x)
+generic.x = 4
+del generic.x
+
+#eval and exec
+#translates strings into python code
+#eval can run but cannot create variables
+
+print(eval('5+10'))
+print(eval('"test".upper()'))
+#cannot run an if statement in eval
+exec('if True: print("test")')
+#can run an exec to set variable names
+
+my_experiment = "test"
+print(my_experiment.upper())
+print(my_experiment.title())
+print(my_experiment.lower())
+print(my_experiment.casefold())
+for operation in ['upper', 'title', 'lower', 'casefold']:
+	print(eval(f'my_experiment.{operation}()'))
+
+	#this bellow stuff is set up for idiots
+# string_func = ['upper()', 'title()', 'lower()', 'casefold()']
+# for x in range(len(string_func)):
+# 	print(eval(f'my_experiment.{string_func[x]}'))
+
+
