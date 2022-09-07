@@ -12,13 +12,16 @@ clock = pygame.time.Clock() #can limmit th max fram rate
 ship_surf = pygame.image.load('../graphics/ship.png').convert_alpha() #convert to something pygame can work with easily
 #ship_y_pos = 500
 #place by center
-ship_rect = ship_surf.get_rect(midright = (1280, 500))#can specify where your putting it, location is based off of input
+#create th rect based on th ship size, only used for specific positioning
+ship_rect = ship_surf.get_rect(center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2))#can specify where your putting it, location is based off of input
 print(ship_rect) #stores location 
 background_surf = pygame.image.load('../graphics/background.png').convert()
 	#gets rid of of transparency without alpha#.. goes up a folder level from current
 #add a font object
 font = pygame.font.Font('../graphics/subatomic.ttf', 50)#have a ttf for text
 text_surf = font.render('Space', True, 'White') #antialiasing softens the edges
+
+text_rect = text_surf.get_rect(midbottom = (WINDOW_WIDTH/2, WINDOW_HEIGHT-80))
 #code ends so the display does too
 #keeps the code going
 #excersize: research, the documentation for pygame is really good
@@ -52,10 +55,17 @@ while True:
 	#draws in order down
 	#need to fill whole surface each time or else ull get blurs
 	display_surface.blit(background_surf, (0,0))
+	if ship_rect.y > 0:
+		ship_rect.top -=4
+		#needs to be greater than cause it never actually equals 0
+
+	#if the top of th ship is at th top then stop
+
 	display_surface.blit(ship_surf, ship_rect) # in exact center of screen
 	#ship_y_pos -= 4
 	#will eventually learn how to fix the placement of th surface
-	display_surface.blit(text_surf, (500,200))
+	display_surface.blit(text_surf, text_rect)
+	#can move any point u want and they will stay rellitive
 	#place the surface, surface and then position
 	#display_surface.blit(test_surf, (WINDOW_WIDTH - test_surf.get_width(),200))
 
