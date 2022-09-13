@@ -2,7 +2,8 @@ import pygame, sys
 
 
 pygame.init() #dont have to worry about what this inits
-
+#delta time measures how long to create one frame, need speed regardless of framerate
+#div by the current frame
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280,720
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))#opens window for a milisecond
 pygame.display.set_caption('Asteroid Killer')
@@ -10,6 +11,11 @@ clock = pygame.time.Clock() #can limmit th max fram rate
 #rectangles are used to store the location info
 #importing images
 ship_surf = pygame.image.load('../graphics/ship.png').convert_alpha() #convert to something pygame can work with easily
+#can put this in a variable
+ship_reversed_surf = pygame.transform.flip(ship_surf, False, True) #ships surface and then flipped on the y axis
+#can scale it
+ship_surf_scaled = pygame.transform.scale(ship_surf, (600, 50))
+ship_surf_rotated = pygame.transform.rotate(ship_surf, 45)
 #ship_y_pos = 500
 #place by center
 #create th rect based on th ship size, only used for specific positioning
@@ -35,6 +41,7 @@ text_rect = text_surf.get_rect(midbottom = (WINDOW_WIDTH/2, WINDOW_HEIGHT-80))
 #uses the blit method
 #position always th top left of th surface
 #speed to run while loop dictates how fast th game runs
+test_rect = pygame.Rect(100,200,400,500)
 while True:
 	#runs forever -> keeps game running
 	#do not run the code until i tell you, its game loop
@@ -60,11 +67,11 @@ while True:
 	# 		#releasing mouse button
 	# 		print(event.pos) #print where ur pressing th mouse down
 	# #framerate limit
-	clock.tick(120)	
-
+	clock.tick(120)	#delta time can get the frame rate and then standardize it per computer
+	print(clock.get_fps())
 	#mouse input
-	print(pygame.mouse.get_pos()) # dont need an event for this
-	print(pygame.mouse.get_pressed()) #see what is pressed
+	# print(pygame.mouse.get_pos()) # dont need an event for this
+	# print(pygame.mouse.get_pressed()) #see what is pressed
 	ship_rect.center = pygame.mouse.get_pos()
 
 	#2. updates
@@ -79,8 +86,6 @@ while True:
 
 	#if the top of th ship is at th top then stop
 
-	display_surface.blit(ship_surf, ship_rect) # in exact center of screen
-	#ship_y_pos -= 4
 	#will eventually learn how to fix the placement of th surface
 	display_surface.blit(text_surf, text_rect)
 	#can move any point u want and they will stay rellitive
@@ -88,7 +93,11 @@ while True:
 	#display_surface.blit(test_surf, (WINDOW_WIDTH - test_surf.get_width(),200))
 	display_surface.blit(laser_surf, laser_rect)
 
-	laser_rect.y -= 2
+	laser_rect.y -= 10 #mult by delta time
+	pygame.draw.rect(display_surface, 'purple', text_rect.inflate(30,30), width = 8, border_radius = 5)
+
+	display_surface.blit(ship_surf, ship_rect) # in exact center of screen
+	#ship_y_pos -= 4 
 	#3. show the frame to the player/update the display surface
 	pygame.display.update() #put all stuff on the window
 	#after closing pygame we dont technically quit th game so this bottom part still runs
