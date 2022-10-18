@@ -4,7 +4,7 @@ from support import *
 from timer import Timer
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, pos, group):
+	def __init__(self, pos, group, collision_sprites, tree_sprites):
 		#as created becomes in th class
 		super().__init__(group)
 		#run this early
@@ -21,12 +21,17 @@ class Player(pygame.sprite.Sprite):
 		#self.image.fill('green')
 		#want ints for this instead of floating points
 		self.rect = self.image.get_rect(center = pos) #create player rectangle
+		
 		self.z = LAYERS['main']
 
 		#movement variables
 		self.direction = pygame.math.Vector2()#changes with 1 and -1 depending on ur direction
 		self.pos = pygame.math.Vector2(self.rect.center)
-		self.speed = 200 #player speed
+		self.speed = 400 #player speed
+
+		#collision
+		self.hitbox = self.rect.copy().inflate((-126, -70))#keeps it centered but changes size
+		self.collision_sprites = collision_sprites
 
 		#timers
 		self.timers = {
@@ -46,11 +51,27 @@ class Player(pygame.sprite.Sprite):
 		self.seeds = ['corn', 'tomato']
 		self.seed_index = 0
 		self.selected_seed = self.seeds[self.seed_index]
+		#dont use the rect for collisions bc it is much larger than th image and u dnt want tht to be ur collision cause it will look terrible
+
+		#interaction
+		self.tree_sprites = tree_sprites
 
 	def use_tool(self):
 		#make sure it works
 		#print(self.selected_tool)
-		pass
+		if self.selected_tool == 'hoe':
+			pass
+		if self.selected_tool == 'axe':
+			print('the axe was attempted')
+			for tree in self.tree_sprites.sprites():
+				if tree.rect.collidepoint(self.target_pos):
+					tree.damage()
+					print('tool was used')
+		if self.selected_tool == 'water':
+			pass
+
+	def get_target_pos(self):
+		self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]#creates the target position
 	def use_seed(self):
 		pass
 
@@ -160,6 +181,40 @@ class Player(pygame.sprite.Sprite):
 			#print('tool is being used')
 			self.status = self.status.split('_')[0] + '_' + self.selected_tool
 
+	def update_timers(self):
+		for timer in self.timers.values():
+			#call th update method on th timer
+			timer.update()
+
+	def collision(self, direction):
+		for sprite in self.collision_sprites.sprites():
+			#look for th hit box
+			if hasattr(sprite, 'hitbox'):
+				#checks to see if the sprite has a hitbox, make sure anyhow in case theres an error
+				if sprite.hitbox.colliderect(self.hitbox):
+					#if the hitbox on th sprite collides with us
+					#seperate the direction
+					if direction == 'horizontal':
+						if self.direction.x > 0:
+							#this means we moving right
+							self.hitbox.right = sprite.hitbox.left #set our hitbox to be at tht beginning of th obstacles left side
+						if self.direction.x <0:
+							self.hitbox.left = sprite.hitbox.right
+						#update the self rect
+						self.rect.centerx = self.hitbox.centerx
+						self.pos.x = self.hitbox.centerx #this is for th horizontal
+					if direction == 'vertical':
+						if self.direction.y > 0: #moving down
+							#this means we moving right
+							self.hitbox.bottom = sprite.hitbox.top#put th bottom of th player at th top of th obstacle
+						if self.direction.y <0: #moving up
+							self.hitbox.top = sprite.hitbox.bottom
+						#update the self rect
+						self.rect.centery = self.hitbox.centery
+						self.pos.y = self.hitbox.centery #this is for th horizontal
+
+
+
 	def move(self, dt):
 		#move self.pos, 
 		#normalize the vector to make sure its 1 instead of 1.4 on th diags
@@ -171,25 +226,25 @@ class Player(pygame.sprite.Sprite):
 		#horizontal movement
 		#update x only
 		self.pos.x += self.direction.x * self.speed * dt
-		self.rect.centerx = self.pos.x
+		self.hitbox.centerx = round(self.pos.x)#dont truncate the value from 1.9 to 1 
+		self.rect.centerx = self.hitbox.centerx
+		self.collision('horizontal') #this is why we seperated from length to width
 
 
 		#vertical movement
 		self.pos.y += self.direction.y * self.speed * dt
-		self.rect.centery = self.pos.y
+		self.hitbox.centery = round(self.pos.y)
+		self.rect.centery = self.hitbox.centery
+		self.collision('vertical')
 
 
-	def update_timers(self):
-		for timer in self.timers.values():
-			#call th update method on th timer
-			timer.update()
-
-
+	
 
 	def update(self, dt):
 		self.input()
 		self.get_status()
 
 		self.update_timers()
+		self.get_target_pos()
 		self.move(dt)
 		self.animate(dt)
