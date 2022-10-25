@@ -2,9 +2,11 @@ import pygame
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import Generic, Water, WildFlower, Tree
+from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
 from support import *
+from transition import Transition
+from soil import SoilLayer
 
 class Level:
 	#only has one method
@@ -16,10 +18,14 @@ class Level:
 		self.all_sprites = CameraGroup() #replace the default camera group with this custom one
 		self.collision_sprites = pygame.sprite.Group() #keep track of which sprites people can collide with
 		self.tree_sprites = pygame.sprite.Group() #all of trees we create add to this
+		self.interaction_sprites = pygame.sprite.Group()
+		self.soil_layer = SoilLayer(self.all_sprites) #pass in all sprites group
 
 		self.setup()
 		self.overlay = Overlay(self.player)
 
+		self.transition = Transition(self.reset, self.player)
+		
 
 	def setup(self):
 
@@ -47,7 +53,13 @@ class Level:
 		#trees
 		for obj in tmx_data.get_layer_by_name('Trees'):
 			#all sprites has to be first
-			Tree((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites, self.tree_sprites], obj.name)
+			#pass in th player add func from here
+			Tree(
+				pos = (obj.x, obj.y), 
+				surf = obj.image, 
+				groups = [self.all_sprites, self.collision_sprites, self.tree_sprites], 
+				name = obj.name,
+				player_add = self.player_add)
 
 		#wildflowers
 		#theyre on an object layer so its a bit different, watch his tiled video after this course to learn more
@@ -59,11 +71,42 @@ class Level:
 		for x,y, surf in tmx_data.get_layer_by_name('Collision').tiles():
 			Generic((x*TILE_SIZE,y*TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprites) #not in all sprites so it isnt drawn or updated
 
-		Generic((0,0),pygame.image.load('../graphics/world/ground.png').convert_alpha(),self.all_sprites, LAYERS['ground'])
+		#player
 		for obj in tmx_data.get_layer_by_name('Player'):
 			if obj.name == 'Start':
-				self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites, self.tree_sprites) # create the player
+				self.player = Player(
+					pos = (obj.x, obj.y), 
+					group = self.all_sprites, 
+					collision_sprites = self.collision_sprites, 
+					tree_sprites = self.tree_sprites,
+					interaction = self.interaction_sprites,
+					soil_layer = self.soil_layer) # create the player
+			if obj.name == 'Bed':
+				#make the surface
+				Interaction(
+					pos = (obj.x, obj.y),
+					size = (obj.width, obj.height),
+					groups = self.interaction_sprites,
+					name = obj.name
+					)
 		#player is not in th collision sprites but has access to th list
+
+		#background
+		Generic((0,0),pygame.image.load('../graphics/world/ground.png').convert_alpha(),self.all_sprites, LAYERS['ground'])
+		
+	def player_add(self, item):
+		self.player.item_inventory[item]+=1
+
+	def reset(self):
+		#soil
+		self.soil_layer.remove_water()
+		#apples on trees 
+		for tree in self.tree_sprites.sprites():
+			#gets all th trees in th group (why groups are so helpful)
+			for apple in tree.apple_sprites.sprites():
+				apple.kill() #get rid of all the apples before creating new ones
+			tree.create_fruit() #but need to also destroy th existing apples
+
 
 
 	def run(self, dt):
@@ -77,7 +120,10 @@ class Level:
 		#calls players update method 
 		self.all_sprites.update(dt) #updates all sprites
 		self.overlay.display()
+		#print(self.player.item_inventory)
 
+		if self.player.sleep:
+			self.transition.play()
 
 class CameraGroup(pygame.sprite.Group):
 	#create special type of group and get camera here

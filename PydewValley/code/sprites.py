@@ -13,7 +13,12 @@ class Generic(pygame.sprite.Sprite):
 		self.hitbox = self.rect.copy().inflate(-self.rect.width * 0.2, -self.rect.height * 0.75)#for width u dnt wanna shrink too much
 		#for height u want a larger number so u can interact better and actually go behind things
 
-
+class Interaction(Generic):
+	def __init__(self, pos, size, groups, name):
+		#not visible anyway
+		surf = pygame.Surface(size)
+		super().__init__(pos, surf, groups)
+		self.name =name
 class Water(Generic):
 	def __init__(self, pos, frames, groups):
 		#water is going to be animated
@@ -47,7 +52,9 @@ class Particle(Generic):
 		#white surface
 		mask_surf = pygame.mask.from_surface(self.image)
 		new_surf = mask_surf.to_surface()
-		new_surf.colorkey((0,0,0))
+		#get rid of the black color
+		new_surf.set_colorkey((0,0,0))
+		#set to image of the sprite
 		self.image = new_surf
 
 	def update(self,dt):
@@ -57,7 +64,7 @@ class Particle(Generic):
 
 
 class Tree(Generic):
-	def __init__(self, pos, surf, groups, name):
+	def __init__(self, pos, surf, groups, name, player_add):
 		#will need a name for the tree to see if small or large
 		super().__init__(pos, surf, groups) #later will be more extenssive but this gets them in
 		#can take the hitbox from the generic
@@ -75,6 +82,8 @@ class Tree(Generic):
 		self.apple_sprites = pygame.sprite.Group()
 		self.create_fruit()
 
+		self.player_add = player_add
+
 	def damage(self):
 		#damages the tree
 		self.health -= 1
@@ -84,14 +93,27 @@ class Tree(Generic):
 		if len(self.apple_sprites.sprites()) > 0:
 			#pick a random apple
 			random_apple = choice(self.apple_sprites.sprites())
+			Particle(
+				pos = random_apple.rect.topleft,
+				surf = random_apple.image,
+				groups = self.groups()[0], 
+				z = LAYERS['fruit'])
+			self.player_add('apple')
 			random_apple.kill()
 
 	def check_death(self):
 		if self.health <= 0:
+			Particle(
+				pos = self.rect.topleft,
+				surf = self.image,
+				groups = self.groups()[0],
+				z = LAYERS['fruit'],
+				duration = 300)
 			self.image = self.stump_surf
 			self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
 			self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
 			self.alive = False
+			self.player_add('wood') #can come in later and change it so that bigger trees give more wood than small ones
 	def update(self,dt):
 		if self.alive:
 			self.check_death()#if your currently alive check to see if you arent

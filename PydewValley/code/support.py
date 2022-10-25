@@ -20,3 +20,16 @@ def import_folder(path):
 			#print(full_path)
 
 	return surface_list
+
+def import_folder_dict(path):
+	surface_dict = {}
+	for folder_name, sub_folder, img_files in walk(path):
+		img_files.sort()
+		for image in img_files:
+			#access all file paths
+			full_path = path + "/"+ image
+			image_surf = pygame.image.load(full_path).convert_alpha()
+			surface_dict[image.split('.')[0]] = image_surf
+			#0 always gives you th value name without th end
+
+	return surface_dict

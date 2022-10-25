@@ -4,7 +4,7 @@ from support import *
 from timer import Timer
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, pos, group, collision_sprites, tree_sprites):
+	def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer):
 		#as created becomes in th class
 		super().__init__(group)
 		#run this early
@@ -32,6 +32,7 @@ class Player(pygame.sprite.Sprite):
 		#collision
 		self.hitbox = self.rect.copy().inflate((-126, -70))#keeps it centered but changes size
 		self.collision_sprites = collision_sprites
+		self.soil_layer = soil_layer
 
 		#timers
 		self.timers = {
@@ -53,14 +54,24 @@ class Player(pygame.sprite.Sprite):
 		self.selected_seed = self.seeds[self.seed_index]
 		#dont use the rect for collisions bc it is much larger than th image and u dnt want tht to be ur collision cause it will look terrible
 
+		#inventory
+		self.item_inventory = {
+			'wood': 0,
+			'apple': 0,
+			'corn': 0,
+			'tomato': 0
+		}
+
 		#interaction
 		self.tree_sprites = tree_sprites
+		self.interaction = interaction #now player knows where these types of sprites are
+		self.sleep = False
 
 	def use_tool(self):
 		#make sure it works
 		#print(self.selected_tool)
 		if self.selected_tool == 'hoe':
-			pass
+			self.soil_layer.get_hit(self.target_pos)
 		if self.selected_tool == 'axe':
 			print('the axe was attempted')
 			for tree in self.tree_sprites.sprites():
@@ -68,7 +79,7 @@ class Player(pygame.sprite.Sprite):
 					tree.damage()
 					print('tool was used')
 		if self.selected_tool == 'water':
-			pass
+			self.soil_layer.water(self.target_pos)
 
 	def get_target_pos(self):
 		self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]#creates the target position
@@ -104,7 +115,7 @@ class Player(pygame.sprite.Sprite):
 		keys = pygame.key.get_pressed() #returns list of all things potentially being pressed
 
 		#directions
-		if not self.timers['tool_use'].active:
+		if not self.timers['tool_use'].active and not self.sleep:
 			if keys[pygame.K_w]:
 				#print('up')
 				self.direction.y = -1
@@ -169,6 +180,14 @@ class Player(pygame.sprite.Sprite):
 				self.selected_seed = self.seeds[self.seed_index]
 				print(self.selected_seed)
 
+			if keys[pygame.K_RETURN]:
+				collided_interaction_sprite = pygame.sprite.spritecollide(sprite = self, group = self.interaction, dokill = False)
+				if collided_interaction_sprite:
+					if collided_interaction_sprite[0].name == 'Trader':
+						pass
+					else:
+						self.status = 'left_idle' #player point towards the bed 
+						self.sleep = True #now the player is sleeping, can start transition
 	def get_status(self):
 		#check if the player is not moving, then add _idle to th status
 		#idle
