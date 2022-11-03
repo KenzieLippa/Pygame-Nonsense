@@ -7,6 +7,8 @@ from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
 from soil import SoilLayer
+from sky import Rain
+from random import randint
 
 class Level:
 	#only has one method
@@ -25,6 +27,11 @@ class Level:
 		self.overlay = Overlay(self.player)
 
 		self.transition = Transition(self.reset, self.player)
+
+		#sky
+		self.rain = Rain(self.all_sprites)
+		self.raining = randint(0,10) > 3 #later will be random picks a number if more than three is true if not then is false
+		self.soil_layer.raining = self.raining
 		
 
 	def setup(self):
@@ -100,7 +107,12 @@ class Level:
 	def reset(self):
 		#soil
 		self.soil_layer.remove_water()
+		self.raining = randint(0,10) > 3 #for every day we can generate rain
 		#apples on trees 
+		#randomize the rain every time we update th day
+		self.soil_layer.raining = self.raining
+		if self.raining:
+			self.soil_layer.water_all()
 		for tree in self.tree_sprites.sprites():
 			#gets all th trees in th group (why groups are so helpful)
 			for apple in tree.apple_sprites.sprites():
@@ -121,6 +133,10 @@ class Level:
 		self.all_sprites.update(dt) #updates all sprites
 		self.overlay.display()
 		#print(self.player.item_inventory)
+
+		#rain
+		if self.raining:
+			self.rain.update()
 
 		if self.player.sleep:
 			self.transition.play()

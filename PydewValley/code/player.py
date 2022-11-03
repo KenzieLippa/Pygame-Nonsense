@@ -84,7 +84,7 @@ class Player(pygame.sprite.Sprite):
 	def get_target_pos(self):
 		self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]#creates the target position
 	def use_seed(self):
-		pass
+		self.soil_layer.plant_seed(self.target_pos, self.selected_seed) #where are we hitting and what are we planting
 
 	def import_assets(self):
 		#animations dictionary with all th categories
@@ -162,13 +162,13 @@ class Player(pygame.sprite.Sprite):
 
 
 			#seed use
-			if keys[pygame.K_LCTRL]:
+			if keys[pygame.K_p]:
 				#timer for the tool use
 				self.timers['seed_use'].activate()
 				self.direction = pygame.math.Vector2() #set vector to 0 so you cant move while ur using th tool
 				#want to play a new animation but th old animation cld be on a different frame so u shld reset it
 				self.frame_index = 0 #make sure it starts at the beginning
-				print('use seed')
+				#print('use seed')
 
 			#change seed
 			if keys[pygame.K_e] and not self.timers['seed_switch'].active:
