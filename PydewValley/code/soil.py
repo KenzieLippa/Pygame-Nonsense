@@ -18,17 +18,19 @@ class WaterTile(pygame.sprite.Sprite):
 		self.z = LAYERS['soil water']
 
 class Plant(pygame.sprite.Sprite):
-	def __init__(self, plant_type, groups, soil):
+	def __init__(self, plant_type, groups, soil, check_watered):
 		super().__init__(groups) #pass groups into super class
 
 		#setup
 		self.plant_type = plant_type
 		self.frames = import_folder(f'../graphics/fruit/{plant_type}')#pick th folder with th passed in plant type
 		self.soil = soil
+		self.check_watered = check_watered
 		#plant growing
 		self.age = 0 #how old is th plant
 		self.max_age = len(self.frames) - 1 
 		self.grow_speed = GROW_SPEED[plant_type] #how fast it grows
+		self.harvestable = False
 
 		#sprite setup
 		self.image = self.frames[self.age]
@@ -38,13 +40,28 @@ class Plant(pygame.sprite.Sprite):
 
 	def grow(self):
 		#need to know if it was watered
+		if self.check_watered(self.rect.center): #need a position for th function
+			self.age += self.grow_speed
+
+			#if plant is bigger than 0 shld be collideable
+			if int(self.age) > 0:
+				self.z = LAYERS['main']#so collideable after we add th hitbox
+				self.hitbox = self.rect.copy().inflate(-26, -self.rect.height * 0.4)
+			if self.age >= self.max_age:
+				self.age = self.max_age
+				self.harvestable = True
+
+			self.image = self.frames[int(self.age)] #could be a float, make sure is int
+			self.rect = self.image.get_rect(midbottom = self.soil.rect.midbottom + pygame.math.Vector2(0,self.y_offset)) #th image might change
 
 class SoilLayer:
-	def __init__(self, all_sprites):
+	def __init__(self, all_sprites, collision_sprites):
 		#need them visible 
+		#pass in the collision sprites too
 
 		#sprite groups
 		self.all_sprites = all_sprites
+		self.collision_sprites = collision_sprites
 		self.soil_sprites = pygame.sprite.Group()
 		self.water_sprites = pygame.sprite.Group()
 		self.plant_sprites = pygame.sprite.Group()
@@ -158,11 +175,12 @@ class SoilLayer:
 
 	def check_watered(self, pos):
 		#are given pixel position and we need to convert to a grid position
-		x = soil_sprite.rect.x // TILE_SIZE
-		y = soil_sprite.rect.y // TILE_SIZE
+		x = pos[0]// TILE_SIZE
+		y = pos[1] // TILE_SIZE
 		cell = self.grid[y][x]
 		is_watered = 'W' in cell #could either be true or false
-		
+		return is_watered
+
 	def plant_seed(self, target_pos, seed):
 		for soil_sprite in self.soil_sprites.sprites():
 			if soil_sprite.rect.collidepoint(target_pos):
@@ -171,8 +189,12 @@ class SoilLayer:
 				y = soil_sprite.rect.y // TILE_SIZE
 				if 'P' not in self.grid[y][x]:
 					self.grid[y][x].append('P') # now we know we have a plant in this cell
-					Plant(plant_type = seed, groups = [self.all_sprites, self.plant_sprites], soil = soil_sprite) #create plant object
+					#have to also add to th collision sprites
+					Plant(plant_type = seed, groups = [self.all_sprites, self.plant_sprites, self.collision_sprites], soil = soil_sprite, check_watered = self.check_watered) #create plant object
 
+	def update_plants(self):
+		for plant in self.plant_sprites.sprites():
+			plant.grow()
 	def create_soil_tiles(self):
 		self.soil_sprites.empty() #get rid of all existing soil sprites
 		for index_row, row in enumerate(self.grid):

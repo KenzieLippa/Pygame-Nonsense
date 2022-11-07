@@ -3,6 +3,28 @@ from settings import *
 from support import import_folder
 from sprites import Generic
 from random import randint, choice
+
+class Sky:
+	def __init__(self):
+		self.display_surface = pygame.display.get_surface() #get the display surface
+		#black surface
+		self.full_surf = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+		self.start_color = [255,255,255] #can use this to transition th screen
+		self.end_color = (38, 101,189)
+
+
+
+	def display(self,dt):
+		for index, value in enumerate(self.end_color):	
+			#need to know what index we on
+			#enumerate gives you index and value is in th end color
+			if self.start_color[index] > value:
+				self.start_color[index] -= 2 *dt
+				#looking at all th colors, if larger than the end color 
+				#updates each color each time by a small value so not noticable
+
+		self.full_surf.fill(self.start_color) #sets it up to be white
+		self.display_surface.blit(self.full_surf, (0,0), special_flags = pygame.BLEND_RGBA_MULT)
 class Drop(Generic):
 	#import the generic class
 	def __init__(self, surf, pos, moving, groups, z):
