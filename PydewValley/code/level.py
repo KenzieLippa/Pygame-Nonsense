@@ -9,6 +9,7 @@ from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
 from random import randint
+from menu import Menu
 
 class Level:
 	#only has one method
@@ -30,9 +31,20 @@ class Level:
 
 		#sky
 		self.rain = Rain(self.all_sprites)
-		self.raining = randint(0,10) > 3 #later will be random picks a number if more than three is true if not then is false
+		self.raining = randint(0,10) > 7 #later will be random picks a number if more than three is true if not then is false
 		self.soil_layer.raining = self.raining
 		self.sky = Sky()
+
+		#shop
+		self.menu = Menu(self.player, self.toggle_shop)
+		self.shop_active = False #if tru then will show the shop menu
+
+		#music
+		self.success = pygame.mixer.Sound('../audio/success.wav')
+		self.success.set_volume(0.3)
+		self.music = pygame.mixer.Sound('../audio/music.mp3')
+		self.music.set_volume(0.1)
+		self.music.play(loops = -1)
 		
 
 	def setup(self):
@@ -88,9 +100,18 @@ class Level:
 					collision_sprites = self.collision_sprites, 
 					tree_sprites = self.tree_sprites,
 					interaction = self.interaction_sprites,
-					soil_layer = self.soil_layer) # create the player
+					soil_layer = self.soil_layer,
+					toggle_shop = self.toggle_shop) # create the player
 			if obj.name == 'Bed':
 				#make the surface
+				Interaction(
+					pos = (obj.x, obj.y),
+					size = (obj.width, obj.height),
+					groups = self.interaction_sprites,
+					name = obj.name
+					)
+
+			if obj.name == 'Trader':
 				Interaction(
 					pos = (obj.x, obj.y),
 					size = (obj.width, obj.height),
@@ -104,13 +125,18 @@ class Level:
 		
 	def player_add(self, item):
 		self.player.item_inventory[item]+=1
+		self.success.play()
+
+	def toggle_shop(self):
+		self.shop_active = not self.shop_active #switching on or off
+		#print('we are running this')
 
 	def reset(self):
 		#plants
 		self.soil_layer.update_plants()
 		#soil
 		self.soil_layer.remove_water()
-		self.raining = randint(0,10) > 3 #for every day we can generate rain
+		self.raining = randint(0,10) > 7 #for every day we can generate rain
 		#apples on trees 
 		#randomize the rain every time we update th day
 		self.soil_layer.raining = self.raining
@@ -138,6 +164,7 @@ class Level:
 
 	def run(self, dt):
 		#print('run game')
+		#drawing logic
 		self.display_surface.fill('black') #dont see th previous frame
 		
 		#hve both methods, calls on all children
@@ -145,13 +172,21 @@ class Level:
 		#dont need display surface for this
 		self.all_sprites.custom_draw(self.player)
 		#calls players update method 
-		self.all_sprites.update(dt) #updates all sprites
-		self.plant_collision()
+
+		#updates
+		if self.shop_active:
+			self.menu.update()
+		else:
+			#not needed
+			self.all_sprites.update(dt) #updates all sprites
+			self.plant_collision()
+
+		#weather
 		self.overlay.display()
 		#print(self.player.item_inventory)
 
 		#rain
-		if self.raining:
+		if self.raining and not self.shop_active:
 			self.rain.update()
 
 		#daytime
@@ -161,6 +196,7 @@ class Level:
 			self.transition.play()
 
 		#print(self.player.item_inventory)
+		#print(self.shop_active)
 
 class CameraGroup(pygame.sprite.Group):
 	#create special type of group and get camera here

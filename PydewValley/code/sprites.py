@@ -73,7 +73,7 @@ class Tree(Generic):
 		self.alive = True
 		stump_path = f'../graphics/stumps/{"small" if name == "Small" else "large"}.png'
 		self.stump_surf = pygame.image.load(stump_path).convert_alpha()
-		self.invul_timer = Timer(200) #make a new timer
+		#self.invul_timer = Timer(200) #make a new timer
 		#apples
 		self.apple_surf = pygame.image.load('../graphics/fruit/apple.png')
 
@@ -84,10 +84,16 @@ class Tree(Generic):
 
 		self.player_add = player_add
 
+		#axe sounds
+		self.axe_sound = pygame.mixer.Sound('../audio/axe.mp3')
+
 	def damage(self):
 		#damages the tree
 		self.health -= 1
 		#print(self.health)
+
+		#play say
+		self.axe_sound.play()
 
 		#remove an apple if there is one if hit
 		if len(self.apple_sprites.sprites()) > 0:
