@@ -17,9 +17,10 @@ class Player(pygame.sprite.Sprite):
 		self.pos = pygame.math.Vector2(self.rect.center)#using the center for now, important for collisions
 		self.direction = pygame.math.Vector2()
 		self.speed = 200
+		
 	def import_assets(self):
-		path = '../graphics/player/right/' #add the starter path for th animation
-		self.animation = [pygame.image.load(f'{path}{frame}.png').convert_alpha() for frame in range(4)]#could either write a list comprehension or a for loop
+		# path = '../graphics/player/right/' #add the starter path for th animation
+		# self.animation = [pygame.image.load(f'{path}{frame}.png').convert_alpha() for frame in range(4)]#could either write a list comprehension or a for loop
 
 		#better import
 		self.animations  = {}
@@ -31,22 +32,24 @@ class Player(pygame.sprite.Sprite):
 					#now getting the folder key
 			else:
 				#want to turn all items in the folder to create surfaces
-				for file_name in folder[2]:
+				#loads out of order unless u sort it
+				for file_name in sorted(folder[2]):
 					path = folder[0] + '/' +file_name #turn second slash is th character .replace('\\', '/')
-					print(path)
+					#print(path)
 					surf = pygame.image.load(path).convert_alpha()
 					key = folder[0].split("/")[-1] #get the second index off the folder
-					print(key)
+					#print(key)
 					self.animations[key].append(surf)
-					print(self.animations)
+					#print(self.animations)
 			#first touple gives the folders that are within player, 
 			#then we get a list for each of the folders. no more folders and then pngs
 			#first is the name of the folder, then all th folders in the folder and then all the files
 
-	#import the stuff
-		for frame in range(4):
-			#surf = pygame.image.load(f'{path}{frame}.png').convert_alpha()
-			self.animation.append(surf)
+		#import the stuff
+		# for frame in range(4):
+		# 	#surf = pygame.image.load(f'{path}{frame}.png').convert_alpha()
+		# 	self.animation.append(surf)
+	
 	def move(self, dt):
 		#normalize the vector so the length is 1 even when its diagnol
 		if self.direction.magnitude() != 0:
@@ -54,7 +57,8 @@ class Player(pygame.sprite.Sprite):
 			self.direction = self.direction.normalize()#returns new vector
 		self.pos += self.direction * self.speed * dt #but where do we get delta time from if its not in this file
 		self.rect.center = (round(self.pos.x), round(self.pos.y))
-	#need position direction and speed
+		#need position direction and speed
+
 	def input(self):
 
 		keys = pygame.key.get_pressed()
@@ -62,15 +66,19 @@ class Player(pygame.sprite.Sprite):
 			#print('right')
 			#moves right continuously
 			self.direction.x = 1 #change direction
+			self.status = 'right'
 		elif keys[pygame.K_a]:
 			self.direction.x = -1
+			self.status = 'left'
 		else:
 			self.direction.x = 0
 
 		if keys[pygame.K_w]:
 			self.direction.y = -1
+			self.status = 'up'
 		elif keys[pygame.K_s]:
 			self.direction.y = 1
+			self.status = 'down'
 		else:
 			self.direction.y = 0
 
@@ -82,11 +90,17 @@ class Player(pygame.sprite.Sprite):
 		# 	print('down') 
 
 	def animate(self, dt):
-		current_animation = self.animations[self.status]
-		self.frame_index += 10 *dt #will run out of indexes quickly
-		if self.frame_index >= len(current_animation):
+		current_animation = self.animations[self.status] 
+		if self.direction.magnitude() != 0:
+			#know there is some kind of movement
+			self.frame_index += 10 *dt #will run out of indexes quickly
+			if self.frame_index >= len(current_animation):
+				self.frame_index = 0 #first item in th list for th animations
+		else:
 			self.frame_index = 0
+
 		self.image = current_animation[int(self.frame_index)]
+
 	def update(self, dt):
 		self.input() #pass in the delta time
 		self.move(dt)
