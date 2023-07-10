@@ -23,7 +23,7 @@ class Plant(pygame.sprite.Sprite):
 
 		#setup
 		self.plant_type = plant_type
-		self.frames = import_folder(f'../graphics/fruit/{plant_type}')#pick th folder with th passed in plant type
+		self.frames = import_folder(f'graphics/fruit/{plant_type}')#pick th folder with th passed in plant type
 		self.soil = soil
 		self.check_watered = check_watered
 		#plant growing
@@ -69,8 +69,8 @@ class SoilLayer:
 		#graphics
 		#self.soil_surf = pygame.image.load('../graphics/soil/o.png')
 		#dont use the support cause we need to know what we working with
-		self.soil_surfs = import_folder_dict('../graphics/soil/')
-		self.water_surfs =  import_folder('../graphics/soil_water')
+		self.soil_surfs = import_folder_dict('graphics/soil/')
+		self.water_surfs =  import_folder('graphics/soil_water')
 		#print(self.soil_surfs)
 
 		self.create_soil_grid()
@@ -85,14 +85,14 @@ class SoilLayer:
 		#if the soil has a plant already
 
 		#sounds
-		self.hoe_sound = pygame.mixer.Sound('../audio/hoe.wav')
+		self.hoe_sound = pygame.mixer.Sound('audio/hoe.wav')
 		self.hoe_sound.set_volume(0.1)
 
-		self.plant_sound = pygame.mixer.Sound('../audio/plant.wav')
+		self.plant_sound = pygame.mixer.Sound('audio/plant.wav')
 		self.plant_sound.set_volume(0.2)
 
 	def create_soil_grid(self):
-		ground = pygame.image.load('../graphics/world/ground.png') #dont have to convert cause not showing to th player
+		ground = pygame.image.load('graphics/world/ground.png') #dont have to convert cause not showing to th player
 		h_tiles, v_tiles = ground.get_width() //TILE_SIZE, ground.get_height()//TILE_SIZE #floor divide to round down
 		# print(h_tiles)
 		# print(v_tiles)
@@ -102,7 +102,7 @@ class SoilLayer:
 		#so for the bg it goes bg1 [row1 [col1[], col2[]], row2[col1[],col2[]]]
 		self.grid = [[[] for col in range(h_tiles)] for row in range(v_tiles)]
 		#func returns these three elements, using a for loop u can store all th elements in th respective variables
-		for x, y, surf in load_pygame('../data/map.tmx').get_layer_by_name('Farmable').tiles(): #allows us to use it all in a for loop
+		for x, y, surf in load_pygame('data/map.tmx').get_layer_by_name('Farmable').tiles(): #allows us to use it all in a for loop
 			self.grid[y][x].append('F') #y gets list and so does x then from this list append the F too it so we know its farmable
 			# for row in self.grid: #the row is just a variable its not anything created before
 			# 	print(row)

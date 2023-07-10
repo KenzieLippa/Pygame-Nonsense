@@ -40,9 +40,9 @@ class Level:
 		self.shop_active = False #if tru then will show the shop menu
 
 		#music
-		self.success = pygame.mixer.Sound('../audio/success.wav')
+		self.success = pygame.mixer.Sound('audio/success.wav')
 		self.success.set_volume(0.3)
-		self.music = pygame.mixer.Sound('../audio/music.mp3')
+		self.music = pygame.mixer.Sound('audio/music.mp3')
 		self.music.set_volume(0.1)
 		self.music.play(loops = -1)
 		
@@ -50,7 +50,7 @@ class Level:
 	def setup(self):
 
 		#want to import map tmx
-		tmx_data = load_pygame('../data/map.tmx')
+		tmx_data = load_pygame('data/map.tmx')
 		#build the house by importing all layers seperately
 		#house furniture is being created after and this is critical in makign sure you can see the floor and the rugs
 		for layer in ['HouseFloor', 'HouseFurnitureBottom']:
@@ -66,7 +66,7 @@ class Level:
 				Generic((x*TILE_SIZE, y* TILE_SIZE), surf, [self.all_sprites, self.collision_sprites])
 
 		#water
-		water_frames = import_folder('../graphics/water')
+		water_frames = import_folder('graphics/water')
 		for x,y, surf in tmx_data.get_layer_by_name('Water').tiles(): #import them by tiles
 			Water((x*TILE_SIZE, y* TILE_SIZE), water_frames, self.all_sprites)
 
@@ -121,7 +121,7 @@ class Level:
 		#player is not in th collision sprites but has access to th list
 
 		#background
-		Generic((0,0),pygame.image.load('../graphics/world/ground.png').convert_alpha(),self.all_sprites, LAYERS['ground'])
+		Generic((0,0),pygame.image.load('graphics/world/ground.png').convert_alpha(),self.all_sprites, LAYERS['ground'])
 		
 	def player_add(self, item):
 		self.player.item_inventory[item]+=1

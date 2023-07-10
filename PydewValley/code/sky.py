@@ -56,12 +56,12 @@ class Rain:
 		self.all_sprites = all_sprites
 		#have two folders, one for drops and one for floor
 		#have an animation for th floor
-		self.rain_drops = import_folder('../graphics/rain/drops/')
-		self.rain_floor = import_folder('../graphics/rain/floor/')
+		self.rain_drops = import_folder('graphics/rain/drops/')
+		self.rain_floor = import_folder('graphics/rain/floor/')
 
 		#need the size of the entire map
 		#want to create random animations in each area
-		self.floor_w, self.floor_h = pygame.image.load('../graphics/world/ground.png').get_size()
+		self.floor_w, self.floor_h = pygame.image.load('graphics/world/ground.png').get_size()
 
 
 	def create_floor(self):

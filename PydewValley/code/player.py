@@ -75,7 +75,7 @@ class Player(pygame.sprite.Sprite):
 		self.sleep = False
 
 		#sound
-		self.watering = pygame.mixer.Sound('../audio/water.mp3')
+		self.watering = pygame.mixer.Sound('audio/water.mp3')
 		self.watering.set_volume(0.2)
 
 	def use_tool(self):
@@ -111,7 +111,7 @@ class Player(pygame.sprite.Sprite):
 							'right_axe': [], 'left_axe': [], 'up_axe': [], 'down_axe': [],
 							'right_water': [], 'left_water': [], 'up_water': [], 'down_water': []}
 		for animation in self.animations.keys():
-			full_path = '../graphics/character/' + animation #name is also th folder name
+			full_path = 'graphics/character/' + animation #name is also th folder name
 			self.animations[animation] = import_folder(full_path) #use this method to import th folder
 		#print(self.animations)
 

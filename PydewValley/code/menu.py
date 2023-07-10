@@ -10,7 +10,7 @@ class Menu:
 		self.toggle_menu = toggle_menu
 		#these are attributes
 		self.display_surface = pygame.display.get_surface()
-		self.font = pygame.font.Font('../font/LycheeSoda.ttf' , 30) #first is lower second is upper
+		self.font = pygame.font.Font('font/LycheeSoda.ttf' , 30) #first is lower second is upper
 
 		#options
 		self.width = 400
