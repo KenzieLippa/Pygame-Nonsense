@@ -36,7 +36,7 @@ class Car(pygame.sprite.Sprite):
 		self.hitbox.center = (round(self.pos.x), round(self.pos.y))
 		self.rect.center = self.hitbox.center
 		#kill car if out of th window
-		if not -200 < self.rect.x < 3400:
+		if not -200 < self.rect.x < 3000:
 			#if th car is not in this range
 			#then destroy the car
 			#print('car killed')

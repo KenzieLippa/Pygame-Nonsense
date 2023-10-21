@@ -9,7 +9,7 @@ class AllSprites(pygame.sprite.Group):
 	#take original group and make changes
 	def __init__(self):
 		super().__init__()
-		self.offset = pygame.math.Vector2(0,0) #changing this changes where he is but allows you to still move everything th same
+		self.offset = pygame.math.Vector2() #changing this changes where he is but allows you to still move everything th same
 		self.bg = pygame.image.load('graphics/main/map.png').convert()
 		self.fg = pygame.image.load('graphics/main/overlay.png').convert_alpha()
 		#this offsets everything by x pixels
@@ -53,9 +53,16 @@ player = Player((2062,3274), all_sprites, obstacle_sprites)
 
 #timer
 car_timer = pygame.event.custom_type()
-pygame.time.set_timer(car_timer, 200) #slowed down to prevent crashing
+pygame.time.set_timer(car_timer, 500) #slowed down to prevent crashing
 pos_list = []
 
+#font
+font = pygame.font.Font(None, 50)
+text_surf = font.render('VICTORY!!', True, 'White')
+text_rect = text_surf.get_rect(center = (WINDOW_WIDTH /2, WINDOW_HEIGHT /2))
+#music
+music = pygame.mixer.Sound('audio/music.mp3')
+music.play(loops = -1)
 #create sprite setup
 #look at simple objects in settings and cycle through
 #value of the key is all th positions where we wanna create the sprite
@@ -108,11 +115,14 @@ while True:
 #draw a background
 	display_surface.fill('black')
 	#updates 
-	all_sprites.update(dt)
+	if player.pos.y >= 1180:
+		all_sprites.update(dt)
 
-	#draw
-	#all_sprites.draw(display_surface)
-	all_sprites.customize_draw()
+		#draw
+		#all_sprites.draw(display_surface)
+		all_sprites.customize_draw()
+	else:
+		display_surface.blit(text_surf, text_rect)
 
 	#update the display surface -> drawing the frame
 	pygame.display.update()

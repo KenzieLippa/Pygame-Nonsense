@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
 		if direction == 'horizontal':
 			#horizontal collision
 			for sprite in self.collision_sprites.sprites():
-				if sprite.hitbox.colliderect(self.rect):
+				if sprite.hitbox.colliderect(self.hitbox):
 					#check to see if it has a name attribute and tht its car
 					#want to do this for every time we have an attribute in something
 					#makes sure it has the attribute to prevent it from crashing if it doesnt
@@ -45,11 +45,15 @@ class Player(pygame.sprite.Sprite):
 					#know its collided with something on right or left
 					#need to figure out if th collision is on th right or left
 					if self.direction.x > 0: #moving right
+						#causes a wobble because slightly different place
 						self.hitbox.right = sprite.hitbox.left #moves it to where the left edge is
+						#update the rect position
+						self.rect.centerx = self.hitbox.centerx
 						#update th position
 						self.pos.x = self.hitbox.centerx # th x chord of th center of our rectangle
 					if self.direction.x <0: #moving left
 						self.hitbox.left = sprite.hitbox.right
+						self.rect.centerx = self.hitbox.centerx
 						self.pos.x = self.hitbox.centerx #update again, is the same as above
 
 		else:
@@ -62,10 +66,12 @@ class Player(pygame.sprite.Sprite):
 					#need to figure out if th collision is on th right or left
 					if self.direction.y > 0:  # moving down
 						self.hitbox.bottom = sprite.hitbox.top  # moves it to where the left edge is
+						self.rect.centery = self.hitbox.centery
 						#update th position
 						self.pos.y = self.hitbox.centery # th x chord of th center of our rectangle
 					if self.direction.y < 0:  # moving left
 						self.hitbox.top = sprite.hitbox.bottom
+						self.rect.centery = self.hitbox.centery
 						self.pos.y = self.hitbox.centery  # update again, is the same as above
 
 	def import_assets(self):
@@ -169,9 +175,26 @@ class Player(pygame.sprite.Sprite):
 
 		self.image = current_animation[int(self.frame_index)]
 
+	def restrict(self):
+		if self.rect.left < 640:
+			self.pos.x = 640 + self.rect.width/2 #pos is the center so we need the left side
+			self.hitbox.left = 640
+			self.rect.left = 640
+		if self.rect.right > 2560:
+			# pos is the center so we need the left side
+			self.pos.x = 2560 - self.rect.width/2
+			self.hitbox.right = 2560
+			self.rect.right = 2560
+		if self.rect.bottom > 3500:
+			# pos is the center so we need the left side
+			self.pos.y = 3500 - self.rect.height/2
+			self.rect.bottom = 3500
+			self.hitbox.centery = self.rect.centery
+	
 	def update(self, dt):
 		self.input() #pass in the delta time
 		self.move(dt)
 		self.animate(dt)
+		self.restrict()
 		
 
